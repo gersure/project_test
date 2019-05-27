@@ -15,13 +15,15 @@ class Statistics {
 public:
     Statistics(const std::string &host);
 
+
+
+    void FlushMetrics(rocksdb::DB &db, const std::string& name, const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs);
+
+private:
     void FlushEngineTickerMetrics(rocksdb::Tickers t, const uint64_t value, const std::string &name);
-    void FlushEngineHistogramMetrics(rocksdb::Histograms t, const rocksdb::HistogramData value, const std::string &name);
-    void FlushEngineProperties(rocksdb::DB& db, const std::vector<rocksdb::ColumnFamilyHandle *>& db_cfs, const std::string& name);
+    void FlushEngineHistogramMetrics(rocksdb::Histograms t, const rocksdb::HistogramData& value, const std::string &name);
+    void FlushEngineProperties(rocksdb::DB &db, const std::string& name, const std::vector<rocksdb::ColumnFamilyHandle *> &db_cf);
 
-
-    void Run() {
-    }
 
 
 public:

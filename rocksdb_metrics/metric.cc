@@ -48,6 +48,24 @@ Statistics::Statistics(const std::string &host)
 }
 
 
+void Statistics::FlushMetrics(rocksdb::DB &db, const std::string &name,
+                              const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs) {
+    auto statistics = db.GetDBOptions().statistics;
+    for (rocksdb::Tickers t;;) {
+        auto v = statistics->getAndResetTickerCount(t);
+        FlushEngineTickerMetrics(t, v, name);
+    }
+
+    for (rocksdb::Histograms t;;) {
+        rocksdb::HistogramData hisdata;
+        statistics->histogramData(t, &hisdata);
+        FlushEngineHistogramMetrics(t, hisdata, name);
+
+    }
+    FlushEngineProperties(db, name, db_cfs);
+}
+
+
 void Statistics::FlushEngineTickerMetrics(rocksdb::Tickers t, const uint64_t value, const std::string &name) {
     int64_t v = value;
     if (v < 0) {
@@ -360,8 +378,8 @@ void Statistics::FlushEngineTickerMetrics(rocksdb::Tickers t, const uint64_t val
     }
 }
 
-void Statistics::FlushEngineHistogramMetrics(rocksdb::Histograms t, const rocksdb::HistogramData value,
-                                                const std::string &name) {
+void Statistics::FlushEngineHistogramMetrics(rocksdb::Histograms t, const rocksdb::HistogramData &value,
+                                             const std::string &name) {
     switch (t) {
         case rocksdb::Histograms::DB_GET :
             STORE_ENGINE_GET_MICROS_VEC
@@ -828,12 +846,12 @@ void Statistics::FlushEngineHistogramMetrics(rocksdb::Histograms t, const rocksd
     }
 }
 
-void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs,
-                                    const std::string &name) {
-    class RocksdbPropertiesAppend{
+void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::string &name,
+                                       const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs) {
+    class RocksdbPropertiesAppend {
     public:
-        std::string operator()(const std::string& prefix, const std::string& append){
-            return std::move(prefix+append);
+        std::string operator()(const std::string &prefix, const std::string &append) {
+            return std::move(prefix + append);
         }
     };
 
@@ -856,8 +874,8 @@ void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::vector<rocksd
         // It is important to monitor each cf's size, especially the "raft" and "lock" column
         // families.
         if (!db.GetIntProperty(handle, ROCKSDB_TOTAL_SST_FILES_SIZE, &value)) {
-            std::cout<<"rocksdb is too old, missing total-sst-files-size property"<<std::endl;
-        }else {
+            std::cout << "rocksdb is too old, missing total-sst-files-size property" << std::endl;
+        } else {
             STORE_ENGINE_SIZE_GAUGE_VEC
                     .WithLabelValues({name, cf})
                     .Set(value);
@@ -879,16 +897,14 @@ void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::vector<rocksd
         // TODO: find a better place to record these metrics.
         // Refer: https://github.com/facebook/rocksdb/wiki/Memory-usage-in-RocksDB
         // For index and filter blocks memory
-        if (db.GetIntProperty(handle, ROCKSDB_TABLE_READERS_MEM, &value))
-        {
+        if (db.GetIntProperty(handle, ROCKSDB_TABLE_READERS_MEM, &value)) {
             STORE_ENGINE_MEMORY_GAUGE_VEC
                     .WithLabelValues({name, cf, "readers-mem"})
                     .Set(value);
         }
 
         // For memtable
-        if (db.GetIntProperty(handle, ROCKSDB_CUR_SIZE_ALL_MEM_TABLES, &value))
-        {
+        if (db.GetIntProperty(handle, ROCKSDB_CUR_SIZE_ALL_MEM_TABLES, &value)) {
             STORE_ENGINE_MEMORY_GAUGE_VEC
                     .WithLabelValues({name, cf, "mem-tables"})
                     .Set(value);
@@ -896,16 +912,14 @@ void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::vector<rocksd
 
         // TODO: WithLabelValues cache usage and pinned usage.
 
-        if (db.GetIntProperty(handle, ROCKSDB_ESTIMATE_NUM_KEYS, &value))
-        {
+        if (db.GetIntProperty(handle, ROCKSDB_ESTIMATE_NUM_KEYS, &value)) {
             STORE_ENGINE_ESTIMATE_NUM_KEYS_VEC
                     .WithLabelValues({name, cf})
                     .Set(value);
         }
 
         // Pending compaction bytes
-        if (db.GetIntProperty(handle, ROCKSDB_PENDING_COMPACTION_BYTES, &value))
-        {
+        if (db.GetIntProperty(handle, ROCKSDB_PENDING_COMPACTION_BYTES, &value)) {
             STORE_ENGINE_PENDING_COMACTION_BYTES_VEC
                     .WithLabelValues({name, cf})
                     .Set(value);
@@ -913,11 +927,11 @@ void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::vector<rocksd
 
         auto levels = db.GetOptions(handle).num_levels;
         std::string str_value;
-        for( int level=0; level < levels; level++)
-        {
+        for (int level = 0; level < levels; level++) {
             // Compression ratio at levels
             auto str_level = std::to_string(level);
-            if (db.GetProperty(handle, RocksdbPropertiesAppend()(ROCKSDB_COMPRESSION_RATIO_AT_LEVEL, str_level), &str_value)) {
+            if (db.GetProperty(handle, RocksdbPropertiesAppend()(ROCKSDB_COMPRESSION_RATIO_AT_LEVEL, str_level),
+                               &str_value)) {
                 auto v = std::atof(str_value.c_str());
                 if (v >= 0.0) {
                     STORE_ENGINE_COMPRESSION_RATIO_VEC
@@ -926,8 +940,7 @@ void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::vector<rocksd
                 }
             }
 
-            if (db.GetIntProperty(handle, RocksdbPropertiesAppend()(ROCKSDB_NUM_FILES_AT_LEVEL, str_level), &value))
-            {
+            if (db.GetIntProperty(handle, RocksdbPropertiesAppend()(ROCKSDB_NUM_FILES_AT_LEVEL, str_level), &value)) {
                 STORE_ENGINE_NUM_FILES_AT_LEVEL_VEC
                         .WithLabelValues({name, cf, str_level})
                         .Set(value);
@@ -935,8 +948,7 @@ void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::vector<rocksd
         }
 
         // Num immutable mem-table
-        if (db.GetIntProperty(handle, ROCKSDB_NUM_IMMUTABLE_MEM_TABLE, &value))
-        {
+        if (db.GetIntProperty(handle, ROCKSDB_NUM_IMMUTABLE_MEM_TABLE, &value)) {
             STORE_ENGINE_NUM_IMMUTABLE_MEM_TABLE_VEC
                     .WithLabelValues({name, cf})
                     .Set(value);
@@ -944,23 +956,21 @@ void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::vector<rocksd
     }
 
 // For snapshot
-    if (db.GetIntProperty(ROCKSDB_NUM_SNAPSHOTS, &value))
-    {
+    if (db.GetIntProperty(ROCKSDB_NUM_SNAPSHOTS, &value)) {
         STORE_ENGINE_NUM_SNAPSHOTS_GAUGE_VEC
                 .WithLabelValues({name})
-        .Set(value);
+                .Set(value);
     }
 
-    if (db.GetIntProperty(ROCKSDB_OLDEST_SNAPSHOT_TIME, &value))
-    {
+    if (db.GetIntProperty(ROCKSDB_OLDEST_SNAPSHOT_TIME, &value)) {
         // RocksDB returns 0 if no snapshots.
         using namespace std::chrono;
         uint64_t now = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
-        uint64_t v = value > 0 && now > value ?  now - value  : 0 ;
+        uint64_t v = value > 0 && now > value ? now - value : 0;
 
         STORE_ENGINE_OLDEST_SNAPSHOT_DURATION_GAUGE_VEC
                 .WithLabelValues({name})
-        .Set(v);
+                .Set(v);
     }
 }
 
