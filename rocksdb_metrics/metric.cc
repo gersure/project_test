@@ -5,6 +5,115 @@
 #include "metric.hh"
 
 
+void StatisticsEventListener::OnFlushCompleted(rocksdb::DB *db, const rocksdb::FlushJobInfo &info) {
+    statistics_.STORE_ENGINE_EVENT_COUNTER_VEC
+            .WithLabelValues({db_name_, info.cf_name, "flush"})
+            .Increment();
+    statistics_.STORE_ENGINE_STALL_CONDITIONS_CHANGED_VEC
+            .WithLabelValues({db_name_, info.cf_name, "triggered_writes_slowdown"})
+            .Set(int64_t(info.triggered_writes_slowdown));
+    statistics_.STORE_ENGINE_STALL_CONDITIONS_CHANGED_VEC
+            .WithLabelValues({db_name_, info.cf_name, "triggered_writes_stop"})
+            .Set(int64_t(info.triggered_writes_stop));
+}
+
+void StatisticsEventListener::OnCompactionCompleted(rocksdb::DB *db,
+                                                    const rocksdb::CompactionJobInfo &info) {
+    statistics_.STORE_ENGINE_EVENT_COUNTER_VEC
+            .WithLabelValues({db_name_, info.cf_name, "compaction"})
+            .Increment();
+    statistics_.STORE_ENGINE_COMPACTION_DURATIONS_VEC
+            .WithLabelValues({db_name_, info.cf_name})
+            .Observe(double(info.stats.elapsed_micros) / 1000000.0);
+    statistics_.STORE_ENGINE_COMPACTION_NUM_CORRUPT_KEYS_VEC
+            .WithLabelValues({db_name_, info.cf_name})
+            .Increment(info.stats.num_corrupt_keys);
+    statistics_.STORE_ENGINE_COMPACTION_REASON_VEC
+            .WithLabelValues({db_name_,
+                              info.cf_name,
+                              GetCompactionReasonString(info.compaction_reason)})
+            .Increment();
+}
+
+void StatisticsEventListener::OnExternalFileIngested(rocksdb::DB *db, const rocksdb::ExternalFileIngestionInfo &info) {
+    statistics_.STORE_ENGINE_EVENT_COUNTER_VEC
+            .WithLabelValues({db_name_, info.cf_name, "ingestion"})
+            .Increment();
+}
+
+void StatisticsEventListener::OnStallConditionsChanged(const rocksdb::WriteStallInfo &info) {
+    statistics_.STORE_ENGINE_EVENT_COUNTER_VEC
+            .WithLabelValues({db_name_, info.cf_name, "stall_conditions_changed"})
+            .Increment();
+
+    statistics_.STORE_ENGINE_STALL_CONDITIONS_CHANGED_VEC
+            .WithLabelValues({db_name_,
+                              info.cf_name,
+                              GetWriteStallConditionString(info.condition.cur),
+                             })
+            .Set(1);
+    statistics_.STORE_ENGINE_STALL_CONDITIONS_CHANGED_VEC
+            .WithLabelValues({db_name_,
+                              info.cf_name,
+                              GetWriteStallConditionString(info.condition.prev)})
+            .Set(0);
+}
+
+const char *StatisticsEventListener::GetCompactionReasonString(rocksdb::CompactionReason compaction_reason) {
+    using namespace rocksdb;
+    switch (compaction_reason) {
+        case CompactionReason::kUnknown:
+            return "Unknown";
+        case CompactionReason::kLevelL0FilesNum:
+            return "LevelL0FilesNum";
+        case CompactionReason::kLevelMaxLevelSize:
+            return "LevelMaxLevelSize";
+        case CompactionReason::kUniversalSizeAmplification:
+            return "UniversalSizeAmplification";
+        case CompactionReason::kUniversalSizeRatio:
+            return "UniversalSizeRatio";
+        case CompactionReason::kUniversalSortedRunNum:
+            return "UniversalSortedRunNum";
+        case CompactionReason::kFIFOMaxSize:
+            return "FIFOMaxSize";
+        case CompactionReason::kFIFOReduceNumFiles:
+            return "FIFOReduceNumFiles";
+        case CompactionReason::kFIFOTtl:
+            return "FIFOTtl";
+        case CompactionReason::kManualCompaction:
+            return "ManualCompaction";
+        case CompactionReason::kFilesMarkedForCompaction:
+            return "FilesMarkedForCompaction";
+        case CompactionReason::kBottommostFiles:
+            return "BottommostFiles";
+        case CompactionReason::kTtl:
+            return "Ttl";
+        case CompactionReason::kFlush:
+            return "Flush";
+        case CompactionReason::kExternalSstIngestion:
+            return "ExternalSstIngestion";
+        case CompactionReason::kNumOfReasons:
+            // fall through
+        default:
+            return "Invalid";
+    }
+}
+
+const char *StatisticsEventListener::GetWriteStallConditionString(rocksdb::WriteStallCondition c) {
+    using namespace rocksdb;
+    switch (c) {
+        case WriteStallCondition::kNormal :
+            return "normal";
+        case WriteStallCondition::kDelayed :
+            return "delayed";
+        case WriteStallCondition::kStopped :
+            return "stopped";
+        default:
+            return "Invalid";
+    }
+}
+
+
 Statistics::Statistics(const std::string &host)
         : exposer_(host),
           registry_(std::make_shared<prometheus::Registry>()),
@@ -16,6 +125,7 @@ Statistics::Statistics(const std::string &host)
     .Register(*registry_) \
     .LabelNames({label, __VA_ARGS__})),
           _make_counter_family(_init_counter_familys)
+
 #define _init_gauge_familys(param, name, help, label, ...)   \
     param(prometheus::BuildGauge() \
     .Name(name) \
@@ -23,6 +133,14 @@ Statistics::Statistics(const std::string &host)
     .Register(*registry_) \
     .LabelNames({label, __VA_ARGS__})),
           _make_gauge_family(_init_gauge_familys)
+
+#define _init_histogram_familys(param, name, help, label, ...)   \
+    param(prometheus::BuildHistogram() \
+    .Name(name) \
+    .Help(help) \
+    .Register(*registry_) \
+    .LabelNames(label, __VA_ARGS__)),
+          _make_histogram_family(_init_histogram_familys)
           dummy_() {
     for (
         auto pair : rocksdb::TickersNameMap
@@ -51,17 +169,17 @@ Statistics::Statistics(const std::string &host)
 void Statistics::FlushMetrics(rocksdb::DB &db, const std::string &name,
                               const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs) {
     auto statistics = db.GetDBOptions().statistics;
-    for (rocksdb::Tickers t;;) {
-        auto v = statistics->getAndResetTickerCount(t);
-        FlushEngineTickerMetrics(t, v, name);
+    for (auto &pair: this->tickers_names_) {
+        auto v = statistics->getAndResetTickerCount(pair.first);
+        FlushEngineTickerMetrics(pair.first, v, name);
     }
 
-    for (rocksdb::Histograms t;;) {
+    for (auto &pair: this->histograms_names_) {
         rocksdb::HistogramData hisdata;
-        statistics->histogramData(t, &hisdata);
-        FlushEngineHistogramMetrics(t, hisdata, name);
-
+        statistics->histogramData(pair.first, &hisdata);
+        FlushEngineHistogramMetrics(pair.first, hisdata, name);
     }
+
     FlushEngineProperties(db, name, db_cfs);
 }
 
@@ -973,26 +1091,3 @@ void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::string &name,
                 .Set(v);
     }
 }
-
-
-
-/*
-#define _init_counter_familys(param, name, help, ...)   \
-    param(prometheus::BuildCounter() \
-    .Name(name) \
-    .Help(help) \
-    .Register(*registry_)),
-          _make_counter_familys(_init_counter_familys)
-#define _init_gauge_familys(param, name, help, ...)   \
-    param(prometheus::BuildGauge() \
-    .Name(name) \
-    .Help(help) \
-    .Register(*registry_)),
-          _make_gauge_familys(_init_gauge_familys)
-#define _init_histogram_familys(param, name, help, ...)   \
-    param(prometheus::BuildHistogram() \
-    .Name(name) \
-    .Help(help) \
-    .Register(*registry_)),
-          _make_histogram_familys(_init_histogram_familys)
-*/

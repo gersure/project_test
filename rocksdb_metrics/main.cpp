@@ -1,4 +1,7 @@
 #include <iostream>
+#include <random>
+#include <chrono>
+#include <thread>
 
 #include <rocksdb/db.h>
 #include <rocksdb/options.h>
@@ -10,12 +13,53 @@
 class RocksDB {
     static const size_t MB = 1024 * 1024;
 public:
-    RocksDB(const std::string &dbpath) : dbpath_(dbpath) {
+    RocksDB(const std::string &dbpath, const std::string& host)
+    : dbpath_(dbpath), statistics_(host),
+      statistics_event_listener_(new StatisticsEventListener("test", statistics_)){
         init_options();
         init_cf_name_cache_size();
         open();
     }
 
+    ~RocksDB() {
+        statistics_stop_ = true;
+        statistics_thread_.join();
+        for (auto& cf : db_cfs_) {
+            delete cf;
+        }
+        delete db_;
+    }
+
+    void RunTest() {
+        RunStatistics();
+        rocksdb::ReadOptions read_options;
+        rocksdb::WriteOptions write_options;
+        std::default_random_engine engine;
+        std::uniform_int_distribution<unsigned> u_key(0, 10000000);
+        std::uniform_int_distribution<unsigned> u_sleep(100, 1000);
+        std::string set_value = "value";
+        std::string get_value;
+        while (true) {
+            auto key = std::to_string(u_key(engine));
+            unsigned sleep = (u_sleep(engine));
+            assert(db_->Put(write_options, key, set_value).ok());
+            assert(db_->Get(read_options, key, &get_value).ok());
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
+        }
+    }
+
+    void RunStatistics() {
+        statistics_thread_ = std::move(std::thread(std::bind(&RocksDB::FlushMetrics, this)));
+    }
+
+    void FlushMetrics() {
+        while (!statistics_stop_) {
+            statistics_.FlushMetrics(*db_, "test_db", db_cfs_);
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+    }
+
+private:
     void init_options() {
         options_.create_if_missing = true;
         options_.create_missing_column_families = true;
@@ -43,6 +87,9 @@ public:
         options_.level_compaction_dynamic_level_bytes = true;
         options_.allow_concurrent_memtable_write = true;
         options_.enable_write_thread_adaptive_yield = true;
+
+        options_.statistics = rocksdb::CreateDBStatistics();
+        options_.listeners.push_back(statistics_event_listener_);
     }
 
     void init_cf_name_cache_size() {
@@ -79,11 +126,16 @@ private:
     rocksdb::DB *db_;
     std::vector<std::pair<std::string, size_t>> cf_name_cache_size_;
     std::vector<rocksdb::ColumnFamilyHandle *> db_cfs_;
+    Statistics  statistics_;
+    std::thread statistics_thread_;
+    bool        statistics_stop_;
+    std::shared_ptr<StatisticsEventListener>  statistics_event_listener_;
 };
 
 
 int main() {
-    RocksDB db("./testdb");
+    RocksDB db("./testdb", "0.0.0.0:8080");
+    db.RunTest();
 
 
     return 0;
