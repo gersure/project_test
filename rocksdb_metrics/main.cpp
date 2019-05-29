@@ -14,7 +14,7 @@ class RocksDB {
     static const size_t MB = 1024 * 1024;
 public:
     RocksDB(const std::string &dbpath, const std::string& host)
-    : dbpath_(dbpath), statistics_(host),
+    : dbpath_(dbpath), statistics_(host), statistics_stop_(false),
       statistics_event_listener_(new StatisticsEventListener("test", statistics_)){
         init_options();
         init_cf_name_cache_size();

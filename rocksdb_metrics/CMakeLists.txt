@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(trocksdb)
 
 set(THIRD_PARTY $ENV{HOME}/third-party/)
+
 include_directories(
     ${THIRD_PARTY}/rocksdb/include
     ${THIRD_PARTY}/prometheus/include)

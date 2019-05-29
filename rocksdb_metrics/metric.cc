@@ -423,7 +423,7 @@ void Statistics::FlushEngineTickerMetrics(rocksdb::Tickers t, const uint64_t val
             break;
         case rocksdb::Tickers::STALL_MICROS :
             STORE_ENGINE_STALL_MICROS
-                    .WithLabelValues({name, "stall_micros"})
+                    .WithLabelValues({name})
                     .Increment(v);
             break;
         case rocksdb::Tickers::BLOOM_FILTER_PREFIX_CHECKED :
@@ -438,7 +438,7 @@ void Statistics::FlushEngineTickerMetrics(rocksdb::Tickers t, const uint64_t val
             break;
         case rocksdb::Tickers::WAL_FILE_SYNCED :
             STORE_ENGINE_WAL_FILE_SYNCED
-                    .WithLabelValues({name, "wal_file_synced"})
+                    .WithLabelValues({name})
                     .Increment(v);
             break;
         case rocksdb::Tickers::WAL_FILE_BYTES :
