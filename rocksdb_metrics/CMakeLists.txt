@@ -7,8 +7,8 @@ include_directories(
     ${THIRD_PARTY}/prometheus/include)
 set(THIRD_LIBS
     ${THIRD_PARTY}/rocksdb/lib64/librocksdb.a
-    ${THIRD_PARTY}/prometheus/lib64/libprometheus-cpp-core.a
     ${THIRD_PARTY}/prometheus/lib64/libprometheus-cpp-pull.a
+    ${THIRD_PARTY}/prometheus/lib64/libprometheus-cpp-core.a
     lz4
     snappy
     z
