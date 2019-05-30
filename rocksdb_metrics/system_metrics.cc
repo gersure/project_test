@@ -43,11 +43,11 @@ void SystemStatistics::FlushMetrics(const std::string& path) {
         }
 
         fsblkcnt_t Capacity() {
-            vfs_.f_bsize * vfs_.f_blocks;
+            return vfs_.f_bsize * vfs_.f_blocks;
         }
 
         fsblkcnt_t Available() {
-            vfs_.f_bsize * vfs_.f_bavail;
+            return vfs_.f_bsize * vfs_.f_bavail;
         }
 
     private:
