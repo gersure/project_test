@@ -7,15 +7,22 @@
 #include <rocksdb/options.h>
 #include <rocksdb/table.h>
 
-#include "metric.hh"
+#include "metrics.hh"
+#include "rocksdb_metrics.hh"
+#include "system_metrics.hh"
 
 
 class RocksDB {
     static const size_t MB = 1024 * 1024;
 public:
     RocksDB(const std::string &dbpath, const std::string& host)
-    : dbpath_(dbpath), statistics_(host), statistics_stop_(false),
-      statistics_event_listener_(new StatisticsEventListener("test", statistics_)){
+    : dbpath_(dbpath), metrics_service_(host), sys_statistics_(), rocksdb_statistics_(), statistics_stop_(false),
+      statistics_event_listener_(new StatisticsEventListener("test", rocksdb_statistics_)){
+
+//        metrics_service_.RegisterCollectable(sys_statistics_.GetRegistry());
+//        metrics_service_.RegisterCollectable(rocksdb_statistics_.GetRegistry());
+        metrics_service_.RegisterCollectableV2(sys_statistics_.GetRegistry(), rocksdb_statistics_.GetRegistry());
+
         init_options();
         init_cf_name_cache_size();
         open();
@@ -54,8 +61,9 @@ public:
 
     void FlushMetrics() {
         while (!statistics_stop_) {
-            statistics_.FlushMetrics(*db_, "test_db", db_cfs_);
+            rocksdb_statistics_.FlushMetrics(*db_, "test_db", db_cfs_);
             std::this_thread::sleep_for(std::chrono::seconds(2));
+            sys_statistics_.FlushMetrics(dbpath_);
         }
     }
 
@@ -126,7 +134,9 @@ private:
     rocksdb::DB *db_;
     std::vector<std::pair<std::string, size_t>> cf_name_cache_size_;
     std::vector<rocksdb::ColumnFamilyHandle *> db_cfs_;
-    Statistics  statistics_;
+    PrometheusService  metrics_service_;
+    SystemStatistics   sys_statistics_;
+    RocksdbStatistics  rocksdb_statistics_;
     std::thread statistics_thread_;
     bool        statistics_stop_;
     std::shared_ptr<StatisticsEventListener>  statistics_event_listener_;

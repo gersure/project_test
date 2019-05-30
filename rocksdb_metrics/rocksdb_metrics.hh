@@ -8,35 +8,40 @@
 #include <rocksdb/db.h>
 #include <rocksdb/statistics.h>
 #include <rocksdb/listener.h>
-#include "prometheus/exposer.h"
-#include "prometheus/registry.h"
+#include "metrics.hh"
 
-class Statistics;
+class RocksdbStatistics;
+
 class StatisticsEventListener : public rocksdb::EventListener {
 public:
-    StatisticsEventListener(const std::string& db_name, Statistics& statistics)
-    : db_name_(db_name), statistics_(statistics) {}
+    StatisticsEventListener(const std::string &db_name, RocksdbStatistics &statistics)
+            : db_name_(db_name), statistics_(statistics) {}
+
     void OnFlushCompleted(rocksdb::DB *db, const rocksdb::FlushJobInfo &info) override;
+
     void OnCompactionCompleted(rocksdb::DB *db,
                                const rocksdb::CompactionJobInfo &info) override;
-    void OnExternalFileIngested(rocksdb::DB *db, const rocksdb::ExternalFileIngestionInfo &info) override ;
-    void OnStallConditionsChanged(const rocksdb::WriteStallInfo &info) override ;
+
+    void OnExternalFileIngested(rocksdb::DB *db, const rocksdb::ExternalFileIngestionInfo &info) override;
+
+    void OnStallConditionsChanged(const rocksdb::WriteStallInfo &info) override;
 
 private:
     const char *GetCompactionReasonString(rocksdb::CompactionReason compaction_reason);
+
     const char *GetWriteStallConditionString(rocksdb::WriteStallCondition c);
+
     std::string db_name_;
-    Statistics& statistics_;
+    RocksdbStatistics &statistics_;
 };
 
-class Statistics {
+class RocksdbStatistics : public BaseMetrics {
 public:
-    Statistics(const std::string &host);
+    RocksdbStatistics();
 
     void
     FlushMetrics(rocksdb::DB &db, const std::string &name,
                  const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs);
-
 
 private:
     void FlushEngineTickerMetrics(rocksdb::Tickers t, const uint64_t value, const std::string &name);
@@ -113,8 +118,6 @@ public:
 
 private:
     friend StatisticsEventListener;
-    prometheus::Exposer exposer_;
-    std::shared_ptr<prometheus::Registry> registry_;
     std::map<rocksdb::Tickers, const std::string> tickers_names_;
     std::map<rocksdb::Histograms, const std::string> histograms_names_;
 
@@ -129,9 +132,6 @@ private:
     prometheus::Family<prometheus::Histogram>& param;
     _make_histogram_family(_make_histogram_familys_param)
 
-
     int dummy_;
-
 };
-
 

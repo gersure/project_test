@@ -2,7 +2,7 @@
 // Created by zhengcf on 2019-05-25.
 //
 
-#include "metric.hh"
+#include "rocksdb_metrics.hh"
 
 
 void StatisticsEventListener::OnFlushCompleted(rocksdb::DB *db, const rocksdb::FlushJobInfo &info) {
@@ -35,7 +35,8 @@ void StatisticsEventListener::OnCompactionCompleted(rocksdb::DB *db,
             .Increment();
 }
 
-void StatisticsEventListener::OnExternalFileIngested(rocksdb::DB *db, const rocksdb::ExternalFileIngestionInfo &info) {
+void StatisticsEventListener::OnExternalFileIngested(rocksdb::DB *db,
+                                                     const rocksdb::ExternalFileIngestionInfo &info) {
     statistics_.STORE_ENGINE_EVENT_COUNTER_VEC
             .WithLabelValues({db_name_, info.cf_name, "ingestion"})
             .Increment();
@@ -114,17 +115,15 @@ const char *StatisticsEventListener::GetWriteStallConditionString(rocksdb::Write
 }
 
 
-Statistics::Statistics(const std::string &host)
-        : exposer_(host),
-          registry_(std::make_shared<prometheus::Registry>()),
-
+RocksdbStatistics::RocksdbStatistics()
+        : BaseMetrics(),
 #define _init_counter_familys(param, name, help, label, ...)   \
     param(prometheus::BuildCounter() \
     .Name(name) \
     .Help(help) \
     .Register(*registry_) \
     .LabelNames({label, __VA_ARGS__})),
-          _make_counter_family(_init_counter_familys)
+        _make_counter_family(_init_counter_familys)
 
 #define _init_gauge_familys(param, name, help, label, ...)   \
     param(prometheus::BuildGauge() \
@@ -132,7 +131,7 @@ Statistics::Statistics(const std::string &host)
     .Help(help) \
     .Register(*registry_) \
     .LabelNames({label, __VA_ARGS__})),
-          _make_gauge_family(_init_gauge_familys)
+        _make_gauge_family(_init_gauge_familys)
 
 #define _init_histogram_familys(param, name, help, label, ...)   \
     param(prometheus::BuildHistogram() \
@@ -140,8 +139,8 @@ Statistics::Statistics(const std::string &host)
     .Help(help) \
     .Register(*registry_) \
     .LabelNames(label, __VA_ARGS__)),
-          _make_histogram_family(_init_histogram_familys)
-          dummy_() {
+        _make_histogram_family(_init_histogram_familys)
+        dummy_() {
     for (
         auto pair : rocksdb::TickersNameMap
             ) {
@@ -161,13 +160,11 @@ Statistics::Statistics(const std::string &host)
                       });
         histograms_names_.insert(pair);
     }
-
-    exposer_.RegisterCollectable(registry_);
 }
 
 
-void Statistics::FlushMetrics(rocksdb::DB &db, const std::string &name,
-                              const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs) {
+void RocksdbStatistics::FlushMetrics(rocksdb::DB &db, const std::string &name,
+                                     const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs) {
     auto statistics = db.GetDBOptions().statistics;
     for (auto &pair: this->tickers_names_) {
         auto v = statistics->getAndResetTickerCount(pair.first);
@@ -184,7 +181,7 @@ void Statistics::FlushMetrics(rocksdb::DB &db, const std::string &name,
 }
 
 
-void Statistics::FlushEngineTickerMetrics(rocksdb::Tickers t, const uint64_t value, const std::string &name) {
+void RocksdbStatistics::FlushEngineTickerMetrics(rocksdb::Tickers t, const uint64_t value, const std::string &name) {
     int64_t v = value;
     if (v < 0) {
         std::cout << "ticker is overflow, ticker: " << tickers_names_[t] << ";value" << value << std::endl;
@@ -496,8 +493,8 @@ void Statistics::FlushEngineTickerMetrics(rocksdb::Tickers t, const uint64_t val
     }
 }
 
-void Statistics::FlushEngineHistogramMetrics(rocksdb::Histograms t, const rocksdb::HistogramData &value,
-                                             const std::string &name) {
+void RocksdbStatistics::FlushEngineHistogramMetrics(rocksdb::Histograms t, const rocksdb::HistogramData &value,
+                                                    const std::string &name) {
     switch (t) {
         case rocksdb::Histograms::DB_GET :
             STORE_ENGINE_GET_MICROS_VEC
@@ -964,8 +961,8 @@ void Statistics::FlushEngineHistogramMetrics(rocksdb::Histograms t, const rocksd
     }
 }
 
-void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::string &name,
-                                       const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs) {
+void RocksdbStatistics::FlushEngineProperties(rocksdb::DB &db, const std::string &name,
+                                              const std::vector<rocksdb::ColumnFamilyHandle *> &db_cfs) {
     class RocksdbPropertiesAppend {
     public:
         std::string operator()(const std::string &prefix, const std::string &append) {
@@ -1058,7 +1055,8 @@ void Statistics::FlushEngineProperties(rocksdb::DB &db, const std::string &name,
                 }
             }
 
-            if (db.GetIntProperty(handle, RocksdbPropertiesAppend()(ROCKSDB_NUM_FILES_AT_LEVEL, str_level), &value)) {
+            if (db.GetIntProperty(handle, RocksdbPropertiesAppend()(ROCKSDB_NUM_FILES_AT_LEVEL, str_level),
+                                  &value)) {
                 STORE_ENGINE_NUM_FILES_AT_LEVEL_VEC
                         .WithLabelValues({name, cf, str_level})
                         .Set(value);

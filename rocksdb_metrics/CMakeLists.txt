@@ -3,6 +3,10 @@ project(trocksdb)
 
 set(THIRD_PARTY $ENV{HOME}/third-party/)
 
+#include_directories(/usr/local/Cellar/rocksdb/5.18.3/include
+#        /usr/local/include
+#        )
+
 include_directories(
     ${THIRD_PARTY}/rocksdb/include
     ${THIRD_PARTY}/prometheus/include)
@@ -20,9 +24,11 @@ set(THIRD_LIBS
 
 set(SOURCES
     main.cpp
-    metric.cc
-    metric.hh
-    )
+        metrics.hh
+        rocksdb_metrics.cc
+        rocksdb_metrics.hh
+        system_metrics.cc
+        system_metrics.hh)
 
 
 add_executable(trocksdb ${SOURCES})
