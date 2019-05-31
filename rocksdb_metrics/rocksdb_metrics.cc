@@ -478,6 +478,16 @@ void RocksdbStatistics::FlushEngineTickerMetrics(rocksdb::Tickers t, const uint6
                     .WithLabelValues({name, "flush_write_bytes"})
                     .Increment(v);
             break;
+        case rocksdb::Tickers::MERGE_OPERATION_TOTAL_TIME :
+            STORE_ENGINE_MERGE_TOTAL_TIME
+                    .WithLabelValues({name, "merge_operation_total_time"})
+                    .Increment(v);
+            break;
+        case rocksdb::Tickers::READ_NUM_MERGE_OPERANDS :
+            STORE_ENGINE_READ_MERGE_OPERANDS
+            .WithLabelValues({name, "read_num_merge_operands"})
+            .Increment(v);
+            break;
         case rocksdb::Tickers::READ_AMP_ESTIMATE_USEFUL_BYTES :
             STORE_ENGINE_READ_AMP_FLOW_VEC
                     .WithLabelValues({name, "read_amp_estimate_useful_bytes"})

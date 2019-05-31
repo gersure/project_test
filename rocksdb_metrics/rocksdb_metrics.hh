@@ -73,8 +73,9 @@ public:
     val(STORE_ENGINE_READ_AMP_FLOW_VEC,         "engine_read_amp_flow_bytes",   "Bytes of read amplification",                          "db", "type") \
     val(STORE_ENGINE_NO_ITERATORS,              "engine_no_iterator",           "Number of iterators currently open",                   "db")         \
     val(STORE_ENGINE_WAL_FILE_SYNCED,           "engine_wal_file_synced",       "Number of times WAL sync is done",                     "db")         \
-    val(STORE_ENGINE_EVENT_COUNTER_VEC,         "engine_event_total",           "Number of engine events",                              "db", "cf", "type")
-
+    val(STORE_ENGINE_EVENT_COUNTER_VEC,         "engine_event_total",           "Number of engine events",                              "db", "cf", "type")   \
+    val(STORE_ENGINE_MERGE_TOTAL_TIME,          "engine_merge_total_time",      "Time of merge operator",                               "db", "type") \
+    val(STORE_ENGINE_READ_MERGE_OPERANDS,       "engine_read_merge_operands",   "merge operands of engine read",                        "db", "type")
 
 #define _make_gauge_family(val) \
     val(STORE_ENGINE_SIZE_GAUGE_VEC,                "engine_size_bytes",                "Sizes of each column families",                "db", "type") \
