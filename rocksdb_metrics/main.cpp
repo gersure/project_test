@@ -13,7 +13,9 @@
 
 
 class RocksDB {
+    static const size_t KB = 1024;
     static const size_t MB = 1024 * 1024;
+    static const size_t GB = 1024 * 1024 * 1024;
 public:
     RocksDB(const std::string &dbpath, const std::string& host)
     : dbpath_(dbpath), metrics_service_(host), sys_statistics_(), rocksdb_statistics_(), statistics_stop_(false),
@@ -87,6 +89,7 @@ private:
                 rocksdb::CompressionType::kNoCompression
         };
 
+        options_.max_subcompactions = 2; // level0 --> level1 compaction
         options_.max_background_compactions = 4;
         options_.wal_bytes_per_sync = 0;
         options_.WAL_ttl_seconds = 0;
@@ -118,12 +121,14 @@ private:
             std::shared_ptr<rocksdb::Cache> cache = rocksdb::NewLRUCache(pair.second);
             rocksdb::BlockBasedTableOptions table_options;
             table_options.block_cache = cache;
-            table_options.block_size = 1024 * 64;
+            table_options.block_size =  64 * KB;
             auto options = options_;
             options.table_factory.reset(rocksdb::NewBlockBasedTableFactory(table_options));
+            auto column_options = rocksdb::ColumnFamilyOptions(options);
+            column_options.max_compaction_bytes = 2 * GB; //limit for this limited will to compact
             db_cf_vec.push_back(rocksdb::ColumnFamilyDescriptor(
                     pair.first,
-                    rocksdb::ColumnFamilyOptions(options)));
+                    column_options));
         }
         return db_cf_vec;
     }
