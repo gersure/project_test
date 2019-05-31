@@ -483,11 +483,6 @@ void RocksdbStatistics::FlushEngineTickerMetrics(rocksdb::Tickers t, const uint6
                     .WithLabelValues({name, "merge_operation_total_time"})
                     .Increment(v);
             break;
-        case rocksdb::Tickers::READ_NUM_MERGE_OPERANDS :
-            STORE_ENGINE_READ_MERGE_OPERANDS
-            .WithLabelValues({name, "read_num_merge_operands"})
-            .Increment(v);
-            break;
         case rocksdb::Tickers::READ_AMP_ESTIMATE_USEFUL_BYTES :
             STORE_ENGINE_READ_AMP_FLOW_VEC
                     .WithLabelValues({name, "read_amp_estimate_useful_bytes"})
@@ -964,6 +959,27 @@ void RocksdbStatistics::FlushEngineHistogramMetrics(rocksdb::Histograms t, const
                     .Set(value.standard_deviation);
             STORE_ENGINE_DECOMPRESSION_TIMES_NANOS_VEC
                     .WithLabelValues({name, "decompression_time_nanos_max"})
+                    .Set(value.max);
+            break;
+
+        case rocksdb::Histograms::READ_NUM_MERGE_OPERANDS :
+            STORE_ENGINE_READ_MERGE_OPERANDS
+                    .WithLabelValues({name, "read_num_merge_operands_median"})
+                    .Set(value.median);
+            STORE_ENGINE_READ_MERGE_OPERANDS
+                    .WithLabelValues({name, "read_num_merge_operands_percentile95"})
+                    .Set(value.percentile95);
+            STORE_ENGINE_READ_MERGE_OPERANDS
+                    .WithLabelValues({name, "read_num_merge_operands_percentile99"})
+                    .Set(value.percentile99);
+            STORE_ENGINE_READ_MERGE_OPERANDS
+                    .WithLabelValues({name, "read_num_merge_operands_average"})
+                    .Set(value.average);
+            STORE_ENGINE_READ_MERGE_OPERANDS
+                    .WithLabelValues({name, "read_num_merge_operands_standard_deviation"})
+                    .Set(value.standard_deviation);
+            STORE_ENGINE_READ_MERGE_OPERANDS
+                    .WithLabelValues({name, "read_num_merge_operands_max"})
                     .Set(value.max);
             break;
         default:

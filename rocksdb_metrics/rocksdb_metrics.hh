@@ -75,7 +75,6 @@ public:
     val(STORE_ENGINE_WAL_FILE_SYNCED,           "engine_wal_file_synced",       "Number of times WAL sync is done",                     "db")         \
     val(STORE_ENGINE_EVENT_COUNTER_VEC,         "engine_event_total",           "Number of engine events",                              "db", "cf", "type")   \
     val(STORE_ENGINE_MERGE_TOTAL_TIME,          "engine_merge_total_time",      "Time of merge operator",                               "db", "type") \
-    val(STORE_ENGINE_READ_MERGE_OPERANDS,       "engine_read_merge_operands",   "merge operands of engine read",                        "db", "type")
 
 #define _make_gauge_family(val) \
     val(STORE_ENGINE_SIZE_GAUGE_VEC,                "engine_size_bytes",                "Sizes of each column families",                "db", "type") \
@@ -111,7 +110,8 @@ public:
     val(STORE_ENGINE_OLDEST_SNAPSHOT_DURATION_GAUGE_VEC,    "engine_oldest_snapshot_duration",                  "Oldest unreleased snapshot duration in seconds", "db") \
     val(STORE_ENGINE_NUM_FILES_AT_LEVEL_VEC,        "engine_num_files_at_level",        "Number of files at each level",                "db", "cf", "level")      \
     val(STORE_ENGINE_NUM_IMMUTABLE_MEM_TABLE_VEC,   "engine_num_immutable_mem_table",   "Number of immutable mem-table",                "db", "cf")               \
-    val(STORE_ENGINE_STALL_CONDITIONS_CHANGED_VEC,  "engine_stall_conditions_changed",  "Stall conditions changed of each column family", "db", "cf", "type")
+    val(STORE_ENGINE_STALL_CONDITIONS_CHANGED_VEC,  "engine_stall_conditions_changed",  "Stall conditions changed of each column family", "db", "cf", "type")     \
+    val(STORE_ENGINE_READ_MERGE_OPERANDS,           "engine_read_merge_operands",       "merge operands of engine read",                  "db", "type")
 
 
 #define _make_histogram_family(val) \
