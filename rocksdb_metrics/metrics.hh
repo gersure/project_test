@@ -36,12 +36,13 @@ public:
             : exposer_(host) {
     }
 
-    template <typename... T>
-    void RegisterCollectableV2(const T... args) {
-        exposer_.RegisterCollectable(args...);
+    template <typename T=std::weak_ptr<prometheus::Registry>, typename... Args>
+    void RegisterCollectableV2(const T t, const Args... args) {
+        exposer_.RegisterCollectable(t);
+        RegisterCollectable(args...);
     }
 
-    void RegisterCollectable(const std::weak_ptr<prometheus::Registry>& regis)
+    void RegisterCollectable(const std::weak_ptr<prometheus::Registry> regis)
     {
         exposer_.RegisterCollectable(regis);
     }
