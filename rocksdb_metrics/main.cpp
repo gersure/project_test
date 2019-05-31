@@ -71,10 +71,19 @@ public:
 
 private:
     void init_options() {
+        //db options
         options_.create_if_missing = true;
         options_.create_missing_column_families = true;
         options_.write_buffer_size = 64 * MB;
 
+        /*
+         * level0 --> write_buffer_size
+         *            * min_write_buffer_number_to_merge
+         *            * level0_file_num_compaction_trigger
+         * level1 --> max_bytes_for_level_base
+         * level2 --> level1.size * max_bytes_for_level_multiplier
+         * ...
+         */
         options_.level0_file_num_compaction_trigger = 3;
         options_.level0_slowdown_writes_trigger = 5;
         options_.level0_stop_writes_trigger = 8;
@@ -118,6 +127,7 @@ private:
     std::vector<rocksdb::ColumnFamilyDescriptor> create_column_families() {
         std::vector<rocksdb::ColumnFamilyDescriptor> db_cf_vec;
         for (auto pair : cf_name_cache_size_) {
+            //table options & column options
             std::shared_ptr<rocksdb::Cache> cache = rocksdb::NewLRUCache(pair.second);
             rocksdb::BlockBasedTableOptions table_options;
             table_options.block_cache = cache;
@@ -125,7 +135,15 @@ private:
             auto options = options_;
             options.table_factory.reset(rocksdb::NewBlockBasedTableFactory(table_options));
             auto column_options = rocksdb::ColumnFamilyOptions(options);
+            //column options
+            column_options.max_bytes_for_level_base = 256 * MB;
+            //column options advance
             column_options.max_compaction_bytes = 2 * GB; //limit for this limited will to compact
+            column_options.min_write_buffer_number_to_merge = 1; // immutable memtable should to merge before to level0
+            column_options.max_bytes_for_level_multiplier = 10;
+            column_options.level_compaction_dynamic_level_bytes = false;
+            column_options.target_file_size_base = 64 * MB; // level1 sst size; suggest is: max_bytes_for_level_base / 10
+            column_options.target_file_size_multiplier = 1; // leveln sst size = level1_sst.size * n
             db_cf_vec.push_back(rocksdb::ColumnFamilyDescriptor(
                     pair.first,
                     column_options));
