@@ -16,6 +16,8 @@ class RocksDB {
     static const size_t KB = 1024;
     static const size_t MB = 1024 * 1024;
     static const size_t GB = 1024 * 1024 * 1024;
+    static const uint8_t DEFAULT_FLUSHER_RESET_INTERVAL = 60000;
+
 public:
     RocksDB(const std::string &dbpath, const std::string& host)
     : dbpath_(dbpath), metrics_service_(host), sys_statistics_(), rocksdb_statistics_(), statistics_stop_(false),
@@ -62,10 +64,19 @@ public:
     }
 
     void FlushMetrics() {
+        auto reset_time = std::chrono::system_clock::now()
+                + std::chrono::milliseconds(DEFAULT_FLUSHER_RESET_INTERVAL);
+
         while (!statistics_stop_) {
             rocksdb_statistics_.FlushMetrics(*db_, "test_db", db_cfs_);
             std::this_thread::sleep_for(std::chrono::seconds(2));
             sys_statistics_.FlushMetrics(dbpath_);
+
+            auto now_time =  std::chrono::system_clock::now();
+            if ( now_time < reset_time ) {
+                db_->GetDBOptions().statistics->Reset();
+                reset_time = now_time + std::chrono::milliseconds(DEFAULT_FLUSHER_RESET_INTERVAL);
+            }
         }
     }
 
@@ -144,6 +155,7 @@ private:
             column_options.level_compaction_dynamic_level_bytes = false;
             column_options.target_file_size_base = 64 * MB; // level1 sst size; suggest is: max_bytes_for_level_base / 10
             column_options.target_file_size_multiplier = 1; // leveln sst size = level1_sst.size * n
+
             db_cf_vec.push_back(rocksdb::ColumnFamilyDescriptor(
                     pair.first,
                     column_options));
