@@ -1,11 +1,12 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.0)
 project(trocksdb)
 
 set(THIRD_PARTY $ENV{HOME}/third-party/)
+set(CMAKE_CXX_STANDARD 11)
 
-#include_directories(/usr/local/Cellar/rocksdb/5.18.3/include
-#        /usr/local/include
-#        )
+include_directories(/usr/local/Cellar/rocksdb/5.18.3/include
+        /usr/local/include
+        )
 
 include_directories(
     ${THIRD_PARTY}/rocksdb/include
@@ -20,15 +21,21 @@ set(THIRD_LIBS
     zstd
     pthread
     benchmark
+    gflags
     )
 
 set(SOURCES
     main.cpp
         metrics.hh
-        rocksdb_metrics.cc
+        benchmark.hh
+        generator.hh
+        system_metrics.hh
         rocksdb_metrics.hh
+        rocksdb_metrics.cc
         system_metrics.cc
-        system_metrics.hh)
+        generator.cc
+        benchmark.cc
+        )
 
 
 add_executable(trocksdb ${SOURCES})
