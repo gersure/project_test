@@ -142,7 +142,7 @@ private:
             rocksdb::BlockBasedTableOptions table_options;
             table_options.block_cache = cache;
             table_options.block_size = 16 * KB;
-            table_options.filter_policy.reset(rocksdb::NewBloomFilterPolicy(2, false);
+            table_options.filter_policy.reset(rocksdb::NewBloomFilterPolicy(2, false));
 
             auto options = DefaultOptions();
             options.table_factory.reset(rocksdb::NewBlockBasedTableFactory(table_options));
