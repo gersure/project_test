@@ -293,7 +293,7 @@ void PrintCommandLine() {
     std::cout<<std::endl;
 
     std::cout << "options --> write_sync        : " << (FLAGS_sync ? "true" : "false") << std::endl;
-    std::cout << "options --> wal_bytes_per_sync: " << FLAGS_wal_bytes_per_sync << "KV" << std::endl;
+    std::cout << "options --> wal_bytes_per_sync: " << FLAGS_wal_bytes_per_sync << "KB" << std::endl;
     std::cout << "options --> disable_wal       : " << (FLAGS_disable_wal ? "true" : "false") << std::endl;
     std::cout << "options --> level_compaction_dynamic_level_bytes: "<< (FLAGS_dynamic_level_bytes ? "true" : "false") << std::endl;
     std::cout << "options --> max_subcompactions  : " << FLAGS_max_subcompactions << std::endl;
