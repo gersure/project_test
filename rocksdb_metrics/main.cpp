@@ -274,7 +274,7 @@ void PrintCommandLine() {
     std::cout << "if write sync        : " << (FLAGS_sync ? "true" : "false") << std::endl;
     std::cout << "if disable wal       : " << (FLAGS_disable_wal ? "true" : "false") << std::endl;
 
-    std::endl;
+    std::cout<<std::endl;
     std::cout << "options --> max_subcompactions  : " << FLAGS_max_subcompactions << std::endl;
     std::cout << "options --> max_background_compactions : " << FLAGS_max_background_compactions << std::endl;
     std::cout << "options --> write_buffer_size, 128     : " << FLAGS_write_buffer_size << "MB" << std::endl;
