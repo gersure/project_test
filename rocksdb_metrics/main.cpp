@@ -39,6 +39,13 @@ DEFINE_int32(batch_num, 1, "if use batch to test, it's batch nums");
 DEFINE_bool(sync, true, "rockdb sync or not");
 DEFINE_bool(disable_wal, false, "disable rockdb wal or not");
 
+
+DEFINE_int32(max_subcompactions, 10, "options max subcompactions");
+DEFINE_int32(max_background_compactions, 10, "options max background compactions");
+DEFINE_int32(write_buffer_size, 128, "options write buffer size (MB)");
+DEFINE_int32(max_bytes_for_level_base, 1280, "options max bytes for level base (MB)");
+DEFINE_int32(level0_slowdown_writes_trigger, 10, "options max bytes for level base (MB)");
+
 class RocksdbWarpper {
     static const size_t KB = 1024;
     static const size_t MB = 1024 * 1024;
@@ -82,7 +89,7 @@ private:
         rocksdb::Options options;
         options.create_if_missing = true;
         options.create_missing_column_families = true;
-        options.write_buffer_size = 128 * MB;
+        options.write_buffer_size = FLAGS_write_buffer_size * MB;
 
         /*
          * level0 --> write_buffer_size
@@ -93,7 +100,7 @@ private:
          * ...
          */
         options.level0_file_num_compaction_trigger = 1;
-        options.level0_slowdown_writes_trigger = 8;
+        options.level0_slowdown_writes_trigger = FLAGS_level0_slowdown_writes_trigger;
         options.level0_stop_writes_trigger = 12;
         options.max_write_buffer_number = 4;
         options.compression_per_level = std::vector<rocksdb::CompressionType>{
@@ -108,10 +115,10 @@ private:
 
         options.max_compaction_bytes = 2 * GB; //limit for this limited will to compact
         options.min_write_buffer_number_to_merge = 1; // immutable memtable should to merge before to level0
-        options.max_subcompactions = 10; // level0 --> level1 compaction
+        options.max_subcompactions = FLAGS_max_subcompactions; // level0 --> level1 compaction
         options.soft_pending_compaction_bytes_limit = 64 * GB; // slow write
         options.hard_pending_compaction_bytes_limit = 256 * GB; // stop write
-        options.max_background_compactions = 4;
+        options.max_background_compactions = FLAGS_max_background_compactions;
         options.wal_bytes_per_sync = 0;
         options.WAL_ttl_seconds = 0;
         options.WAL_size_limit_MB = 0;
@@ -142,6 +149,7 @@ private:
             rocksdb::BlockBasedTableOptions table_options;
             table_options.block_cache = cache;
             table_options.block_size = 16 * KB;
+            table_options.cache_index_and_filter_blocks = true; // cache bloom in block cache
             table_options.filter_policy.reset(rocksdb::NewBloomFilterPolicy(2, false));
 
             auto options = DefaultOptions();
@@ -149,7 +157,7 @@ private:
             auto column_options = rocksdb::ColumnFamilyOptions(options);
 
             //column options
-            column_options.max_bytes_for_level_base = 128 * MB;
+            column_options.max_bytes_for_level_base = FLAGS_max_bytes_for_level_base * MB;
             //column options advance
             column_options.max_compaction_bytes = 2 * GB; //limit for this limited will to compact
             column_options.min_write_buffer_number_to_merge = 1; // immutable memtable should to merge before to level0
@@ -202,12 +210,12 @@ public:
             for (int j = 0; j < column_family_nums; j++) {
                 if (FLAGS_benchmarks == "put") {
                     benchmark_.Put(FLAGS_threads, db_ptr->GetDB(),
-                            db_ptr->GetColumnFamilyHandle()[j]);
+                                   db_ptr->GetColumnFamilyHandle()[j]);
                 } else if (FLAGS_benchmarks == "batch") {
                     benchmark_.BenchPut(FLAGS_threads, FLAGS_batch_num,
-                            db_ptr->GetDB(), db_ptr->GetColumnFamilyHandle()[j]);
+                                        db_ptr->GetDB(), db_ptr->GetColumnFamilyHandle()[j]);
                 } else {
-                    std::cout<<"Error of benchmarks params, use --benchmarks=put/batch"<<std::endl;
+                    std::cout << "Error of benchmarks params, use --benchmarks=put/batch" << std::endl;
                     exit(-1);
                 }
             }
@@ -264,6 +272,14 @@ void PrintCommandLine() {
     std::cout << "if use batch, batch num  : " << FLAGS_batch_num << std::endl;
     std::cout << "if write sync        : " << (FLAGS_sync ? "true" : "false") << std::endl;
     std::cout << "if disable wal       : " << (FLAGS_disable_wal ? "true" : "false") << std::endl;
+
+
+    std::cout << "options --> max_subcompactions  : " << FLAGS_max_subcompactions << std::endl;
+    std::cout << "options --> max_background_compactions : " << FLAGS_max_background_compactions << std::endl;
+    std::cout << "options --> write_buffer_size, 128     : " << FLAGS_write_buffer_size << "MB" << std::endl;
+    std::cout << "options --> max_bytes_for_level_base   : " << FLAGS_max_bytes_for_level_base << "MB" << std::endl;
+    std::cout << "options --> level0_slowdown_writes_trigger : " << FLAGS_max_bytes_for_level_base << "MB" << std::endl;
+
 }
 
 
