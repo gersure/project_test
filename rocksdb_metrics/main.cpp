@@ -44,7 +44,7 @@ DEFINE_int32(max_subcompactions, 10, "options max subcompactions");
 DEFINE_int32(max_background_compactions, 10, "options max background compactions");
 DEFINE_int32(write_buffer_size, 128, "options write buffer size (MB)");
 DEFINE_int32(max_bytes_for_level_base, 1280, "options max bytes for level base (MB)");
-DEFINE_int32(level0_slowdown_writes_trigger, 10, "options max bytes for level base (MB)");
+DEFINE_int32(level0_slowdown_writes_trigger, 10, "options level0 slowdown writes trigger");
 
 class RocksdbWarpper {
     static const size_t KB = 1024;
@@ -278,7 +278,7 @@ void PrintCommandLine() {
     std::cout << "options --> max_background_compactions : " << FLAGS_max_background_compactions << std::endl;
     std::cout << "options --> write_buffer_size, 128     : " << FLAGS_write_buffer_size << "MB" << std::endl;
     std::cout << "options --> max_bytes_for_level_base   : " << FLAGS_max_bytes_for_level_base << "MB" << std::endl;
-    std::cout << "options --> level0_slowdown_writes_trigger : " << FLAGS_max_bytes_for_level_base << "MB" << std::endl;
+    std::cout << "options --> level0_slowdown_writes_trigger : " << FLAGS_level0_slowdown_writes_trigger << "MB" << std::endl;
 
 }
 
