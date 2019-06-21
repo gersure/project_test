@@ -9,6 +9,7 @@
 #include <rocksdb/db.h>
 #include <rocksdb/options.h>
 #include <rocksdb/table.h>
+#include <rocksdb/filter_policy.h>
 
 #include "metrics.hh"
 #include "rocksdb_metrics.hh"
@@ -81,7 +82,7 @@ private:
         rocksdb::Options options;
         options.create_if_missing = true;
         options.create_missing_column_families = true;
-        options.write_buffer_size = 64 * MB;
+        options.write_buffer_size = 128 * MB;
 
         /*
          * level0 --> write_buffer_size
@@ -91,9 +92,9 @@ private:
          * level2 --> level1.size * max_bytes_for_level_multiplier
          * ...
          */
-        options.level0_file_num_compaction_trigger = 3;
-        options.level0_slowdown_writes_trigger = 5;
-        options.level0_stop_writes_trigger = 8;
+        options.level0_file_num_compaction_trigger = 1;
+        options.level0_slowdown_writes_trigger = 8;
+        options.level0_stop_writes_trigger = 12;
         options.max_write_buffer_number = 4;
         options.compression_per_level = std::vector<rocksdb::CompressionType>{
                 rocksdb::CompressionType::kNoCompression,
@@ -107,7 +108,7 @@ private:
 
         options.max_compaction_bytes = 2 * GB; //limit for this limited will to compact
         options.min_write_buffer_number_to_merge = 1; // immutable memtable should to merge before to level0
-        options.max_subcompactions = 2; // level0 --> level1 compaction
+        options.max_subcompactions = 10; // level0 --> level1 compaction
         options.soft_pending_compaction_bytes_limit = 64 * GB; // slow write
         options.hard_pending_compaction_bytes_limit = 256 * GB; // stop write
         options.max_background_compactions = 4;
@@ -140,14 +141,15 @@ private:
             std::shared_ptr<rocksdb::Cache> cache = rocksdb::NewLRUCache(pair.second);
             rocksdb::BlockBasedTableOptions table_options;
             table_options.block_cache = cache;
-            table_options.block_size = 64 * KB;
+            table_options.block_size = 16 * KB;
+            table_options.filter_policy.reset(rocksdb::NewBloomFilterPolicy(2, false);
 
             auto options = DefaultOptions();
             options.table_factory.reset(rocksdb::NewBlockBasedTableFactory(table_options));
             auto column_options = rocksdb::ColumnFamilyOptions(options);
 
             //column options
-            column_options.max_bytes_for_level_base = 256 * MB;
+            column_options.max_bytes_for_level_base = 128 * MB;
             //column options advance
             column_options.max_compaction_bytes = 2 * GB; //limit for this limited will to compact
             column_options.min_write_buffer_number_to_merge = 1; // immutable memtable should to merge before to level0
