@@ -39,6 +39,7 @@ DEFINE_int32(batch_num, 1, "if use batch to test, it's batch nums");
 
 
 DEFINE_bool(sync, true, "rockdb sync or not");
+DEFINE_int32(wal_bytes_per_sync, 0, "options wal bytes per sync (KB)");
 DEFINE_bool(disable_wal, false, "disable rockdb wal or not");
 DEFINE_bool(dynamic_level_bytes, false, " level compaction dynamic level bytes");
 DEFINE_int32(max_subcompactions, 10, "options max subcompactions");
@@ -48,6 +49,19 @@ DEFINE_int32(max_bytes_for_level_base, 512, "options max bytes for level base (M
 DEFINE_int32(level0_file_num_compaction_trigger, 4, "options level0 file num compaction trigger");
 DEFINE_int32(level0_slowdown_writes_trigger, 20, "options level0 slowdown writes trigger");
 DEFINE_int32(level0_stop_writes_trigger,     36, "options level0 stop     writes trigger");
+
+/*
+ * trocksdb --benchmarks=put --nums=100000000 --sync=false
+ * --disable_wal=false --prometheus_port=8080 --value_size=1000
+ * --rocksdb_num=1 --rocksdb_columns=1 --threads=50
+ * --max_subcompactions=10 --max_background_compactions=10
+ * --write_buffer_size=128 --max_bytes_for_level_base=512
+ * --level0_file_num_compaction_trigger=4
+ * --level0_slowdown_writes_trigger=20
+ * --level0_stop_writes_trigger=36
+ * --wal_bytes_per_sync=0
+ */
+
 
 class RocksdbWarpper {
     static const size_t KB = 1024;
@@ -124,7 +138,7 @@ private:
         options.soft_pending_compaction_bytes_limit = 64 * GB; // slow write
         options.hard_pending_compaction_bytes_limit = 256 * GB; // stop write
         options.max_background_compactions = FLAGS_max_background_compactions;
-        options.wal_bytes_per_sync = 512 * KB;
+        options.wal_bytes_per_sync = FLAGS_wal_bytes_per_sync * KB; //512 * KB;
         options.WAL_ttl_seconds = 0;
         options.WAL_size_limit_MB = 0;
         options.max_open_files = -1;
@@ -278,8 +292,9 @@ void PrintCommandLine() {
 
     std::cout<<std::endl;
 
-    std::cout << "options --> write sync        : " << (FLAGS_sync ? "true" : "false") << std::endl;
-    std::cout << "options --> disable wal       : " << (FLAGS_disable_wal ? "true" : "false") << std::endl;
+    std::cout << "options --> write_sync        : " << (FLAGS_sync ? "true" : "false") << std::endl;
+    std::cout << "options --> wal_bytes_per_sync: " << FLAGS_wal_bytes_per_sync << "KV" << std::endl;
+    std::cout << "options --> disable_wal       : " << (FLAGS_disable_wal ? "true" : "false") << std::endl;
     std::cout << "options --> level_compaction_dynamic_level_bytes: "<< (FLAGS_dynamic_level_bytes ? "true" : "false") << std::endl;
     std::cout << "options --> max_subcompactions  : " << FLAGS_max_subcompactions << std::endl;
     std::cout << "options --> max_background_compactions : " << FLAGS_max_background_compactions << std::endl;
