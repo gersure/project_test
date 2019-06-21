@@ -40,10 +40,11 @@ DEFINE_bool(sync, true, "rockdb sync or not");
 DEFINE_bool(disable_wal, false, "disable rockdb wal or not");
 
 
-DEFINE_int32(max_subcompactions, 2, "options max subcompactions");
-DEFINE_int32(max_background_compactions, 8, "options max background compactions");
+DEFINE_int32(max_subcompactions, 10, "options max subcompactions");
+DEFINE_int32(max_background_compactions, 10, "options max background compactions");
 DEFINE_int32(write_buffer_size, 128, "options write buffer size (MB)");
 DEFINE_int32(max_bytes_for_level_base, 512, "options max bytes for level base (MB)");
+DEFINE_int32(level0_file_num_compaction_trigger, 4, "options level0 file num compaction trigger");
 DEFINE_int32(level0_slowdown_writes_trigger, 20, "options level0 slowdown writes trigger");
 DEFINE_int32(level0_stop_writes_trigger,     36, "options level0 stop     writes trigger");
 
@@ -100,7 +101,7 @@ private:
          * level2 --> level1.size * max_bytes_for_level_multiplier
          * ...
          */
-        options.level0_file_num_compaction_trigger = 1;
+        options.level0_file_num_compaction_trigger = FLAGS_level0_file_num_compaction_trigger;
         options.level0_slowdown_writes_trigger = FLAGS_level0_slowdown_writes_trigger;
         options.level0_stop_writes_trigger = FLAGS_level0_stop_writes_trigger;
         options.max_write_buffer_number = 4;
@@ -277,8 +278,9 @@ void PrintCommandLine() {
     std::cout<<std::endl;
     std::cout << "options --> max_subcompactions  : " << FLAGS_max_subcompactions << std::endl;
     std::cout << "options --> max_background_compactions : " << FLAGS_max_background_compactions << std::endl;
-    std::cout << "options --> write_buffer_size, 128     : " << FLAGS_write_buffer_size << "MB" << std::endl;
+    std::cout << "options --> write_buffer_size          : " << FLAGS_write_buffer_size << "MB" << std::endl;
     std::cout << "options --> max_bytes_for_level_base   : " << FLAGS_max_bytes_for_level_base << "MB" << std::endl;
+    std::cout << "options --> level0_file_num_compaction_trigger : " << FLAGS_level0_file_num_compaction_trigger << std::endl;
     std::cout << "options --> level0_slowdown_writes_trigger : " << FLAGS_level0_slowdown_writes_trigger << std::endl;
     std::cout << "options --> level0_stop_writes_trigger     : " << FLAGS_level0_stop_writes_trigger << std::endl;
 
