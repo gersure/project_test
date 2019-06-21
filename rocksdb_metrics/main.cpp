@@ -40,11 +40,12 @@ DEFINE_bool(sync, true, "rockdb sync or not");
 DEFINE_bool(disable_wal, false, "disable rockdb wal or not");
 
 
-DEFINE_int32(max_subcompactions, 10, "options max subcompactions");
-DEFINE_int32(max_background_compactions, 10, "options max background compactions");
+DEFINE_int32(max_subcompactions, 2, "options max subcompactions");
+DEFINE_int32(max_background_compactions, 8, "options max background compactions");
 DEFINE_int32(write_buffer_size, 128, "options write buffer size (MB)");
-DEFINE_int32(max_bytes_for_level_base, 1280, "options max bytes for level base (MB)");
-DEFINE_int32(level0_slowdown_writes_trigger, 10, "options level0 slowdown writes trigger");
+DEFINE_int32(max_bytes_for_level_base, 512, "options max bytes for level base (MB)");
+DEFINE_int32(level0_slowdown_writes_trigger, 20, "options level0 slowdown writes trigger");
+DEFINE_int32(level0_stop_writes_trigger,     36, "options level0 stop     writes trigger");
 
 class RocksdbWarpper {
     static const size_t KB = 1024;
@@ -101,7 +102,7 @@ private:
          */
         options.level0_file_num_compaction_trigger = 1;
         options.level0_slowdown_writes_trigger = FLAGS_level0_slowdown_writes_trigger;
-        options.level0_stop_writes_trigger = 12;
+        options.level0_stop_writes_trigger = FLAGS_level0_stop_writes_trigger;
         options.max_write_buffer_number = 4;
         options.compression_per_level = std::vector<rocksdb::CompressionType>{
                 rocksdb::CompressionType::kNoCompression,
@@ -273,12 +274,13 @@ void PrintCommandLine() {
     std::cout << "if write sync        : " << (FLAGS_sync ? "true" : "false") << std::endl;
     std::cout << "if disable wal       : " << (FLAGS_disable_wal ? "true" : "false") << std::endl;
 
-
+    std::endl;
     std::cout << "options --> max_subcompactions  : " << FLAGS_max_subcompactions << std::endl;
     std::cout << "options --> max_background_compactions : " << FLAGS_max_background_compactions << std::endl;
     std::cout << "options --> write_buffer_size, 128     : " << FLAGS_write_buffer_size << "MB" << std::endl;
     std::cout << "options --> max_bytes_for_level_base   : " << FLAGS_max_bytes_for_level_base << "MB" << std::endl;
-    std::cout << "options --> level0_slowdown_writes_trigger : " << FLAGS_level0_slowdown_writes_trigger << "MB" << std::endl;
+    std::cout << "options --> level0_slowdown_writes_trigger : " << FLAGS_level0_slowdown_writes_trigger << std::endl;
+    std::cout << "options --> level0_stop_writes_trigger     : " << FLAGS_level0_stop_writes_trigger << std::endl;
 
 }
 
