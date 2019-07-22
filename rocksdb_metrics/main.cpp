@@ -259,7 +259,7 @@ public:
                 sys_statistics_.FlushMetrics(".");
 
                 auto now_time = std::chrono::system_clock::now();
-                if (now_time < reset_time) {
+                if (now_time > reset_time) {
                     db->GetDB()->GetDBOptions().statistics->Reset();
                     reset_time = now_time + std::chrono::milliseconds(1 * DEFAULT_FLUSHER_RESET_INTERVAL);
                 }
