@@ -3,7 +3,7 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "rocksdb-test",
+        "datasource": "default",
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
-  "iteration": 1559200935370,
+  "id": 6,
+  "iteration": 1571831202452,
   "links": [
     {
       "icon": "doc",
@@ -36,11 +36,12 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "editable": true,
       "error": false,
       "fill": 5,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 8,
@@ -67,7 +68,9 @@
       "linewidth": 0,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -133,11 +136,12 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "editable": true,
       "error": false,
       "fill": 5,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 8,
@@ -164,7 +168,9 @@
       "linewidth": 0,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -230,11 +236,12 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "editable": true,
       "error": false,
       "fill": 5,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 8,
@@ -261,7 +268,9 @@
       "linewidth": 0,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -347,13 +356,6 @@
       "id": 2095,
       "panels": [],
       "repeat": "db",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "title": "Rocksdb - $db",
       "type": "row"
     },
@@ -362,11 +364,12 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "editable": true,
       "error": false,
       "fill": 3,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 8,
@@ -392,18 +395,13 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": true,
@@ -464,11 +462,12 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "editable": true,
       "error": false,
       "fill": 5,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 8,
@@ -495,18 +494,13 @@
       "linewidth": 0,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": true,
@@ -568,9 +562,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -594,18 +589,13 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -695,9 +685,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -721,18 +712,13 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -813,9 +799,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -839,18 +826,13 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -951,9 +933,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -977,18 +960,13 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -1069,7 +1047,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -1100,13 +1078,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -1180,7 +1151,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -1211,13 +1182,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -1298,7 +1262,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -1329,13 +1293,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -1396,7 +1353,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -1428,13 +1385,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -1515,7 +1465,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -1546,13 +1496,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -1613,7 +1556,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -1644,13 +1587,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -1732,7 +1668,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -1763,13 +1699,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -1854,7 +1783,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -1885,13 +1814,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -1976,7 +1898,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -2007,13 +1929,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -2073,7 +1988,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -2104,13 +2019,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -2170,7 +2078,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -2201,13 +2109,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -2267,7 +2168,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -2299,13 +2200,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -2398,7 +2292,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -2430,13 +2324,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -2557,7 +2444,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -2588,13 +2475,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -2687,7 +2567,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -2719,13 +2599,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -2815,7 +2688,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -2846,13 +2719,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -2914,7 +2780,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -2946,13 +2812,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3023,7 +2882,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -3055,13 +2914,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3142,7 +2994,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -3174,13 +3026,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3249,7 +3094,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 0,
       "gridPos": {
@@ -3281,13 +3126,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3368,7 +3206,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -3399,13 +3237,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3482,7 +3313,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -3513,13 +3344,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3581,7 +3405,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -3612,13 +3436,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3680,7 +3497,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -3711,13 +3528,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3779,7 +3589,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -3810,13 +3620,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3878,7 +3681,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "rocksdb-test",
+      "datasource": "default",
       "decimals": 1,
       "fill": 1,
       "gridPos": {
@@ -3909,13 +3712,6 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "scopedVars": {
-        "db": {
-          "selected": false,
-          "text": "test_db",
-          "value": "test_db"
-        }
-      },
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -3974,7 +3770,7 @@
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 18,
+  "schemaVersion": 19,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -3985,7 +3781,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "rocksdb-test",
+        "datasource": "default",
         "definition": "",
         "hide": 0,
         "includeAll": true,
@@ -4010,7 +3806,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "rocksdb-test",
+        "datasource": "default",
         "definition": "",
         "hide": 0,
         "includeAll": true,
@@ -4063,5 +3859,5 @@
   "timezone": "browser",
   "title": "trocksdb-dashboard",
   "uid": "h5tUBMMZz",
-  "version": 8
+  "version": 1
 }
