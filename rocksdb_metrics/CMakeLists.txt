@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 project(trocksdb)
 
-set(THIRD_PARTY $ENV{HOME}/third-party/)
+set(THIRD_PARTY ${CMAKE_CURRENT_SOURCE_DIR}/third-party/)
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(/usr/local/Cellar/rocksdb/5.18.3/include
-        /usr/local/include
-        )
+MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    include_directories(/usr/local/include
+            /usr/local/opt/bzip2/include)
+    link_directories(/usr/local/lib
+            /usr/local/opt/bzip2/lib)
+ENDIF()
 
 include_directories(
     ${THIRD_PARTY}/rocksdb/include
@@ -18,6 +22,7 @@ set(THIRD_LIBS
     lz4
     snappy
     z
+    bz2
     zstd
     pthread
     benchmark

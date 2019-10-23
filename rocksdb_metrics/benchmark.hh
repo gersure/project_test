@@ -10,8 +10,8 @@
 #include "generator.hh"
 #include "rocksdb/db.h"
 #include "metrics.hh"
-#include <prometheus/exposer.h>
-#include <prometheus/registry.h>
+#include "prometheus/counter.h"
+#include "prometheus/histogram.h"
 
 
 class Benchmark : public BaseMetrics {
@@ -21,14 +21,16 @@ public:
               ROCKSDB_OPERATOR_METRICS(prometheus::BuildCounter()
                                                .Name("rocksdb_operator")
                                                .Help("rocksdb operator command counter")
-                                               .Register(*registry_)
-                                               .LabelNames({"type"})),
+                                               .LabelNamesVec({"type"})
+                                               .Register(*registry_)),
               ROCKSDB_OPERATOR_DURATION(prometheus::BuildHistogram()
                                                 .Name("rocksdb_operator_time")
                                                 .Help("rocksdb operator command time histogram")
+                                                .LabelNamesVec({"type"})
+                                                .BucketBoundaries(
+                                                        prometheus::Histogram::ExponentialBuckets(0.5, 2.0, 20))
                                                 .Register(*registry_)
-                                                .LabelNames({"type"},
-                                                            prometheus::Histogram::ExponentialBuckets(0.5, 2.0, 20))) {
+                                                ) {
 
     }
 

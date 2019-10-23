@@ -4,6 +4,9 @@
 
 #include <sys/statvfs.h>
 #include "system_metrics.hh"
+#include "prometheus/gauge.h"
+#include "prometheus/counter.h"
+#include "prometheus/histogram.h"
 
 SystemStatistics::SystemStatistics()
         :
@@ -11,24 +14,27 @@ SystemStatistics::SystemStatistics()
     param(prometheus::BuildCounter() \
     .Name(name) \
     .Help(help) \
+    .LabelNamesVec({label, __VA_ARGS__}) \
     .Register(*registry_) \
-    .LabelNames({label, __VA_ARGS__})),
+    ),
         _sys_make_counter_family(_sys_init_counter_familys)
 
 #define _sys_init_gauge_familys(param, name, help, label, ...)   \
     param(prometheus::BuildGauge() \
     .Name(name) \
     .Help(help) \
+    .LabelNamesVec({label, __VA_ARGS__}) \
     .Register(*registry_) \
-    .LabelNames({label, __VA_ARGS__})),
+    ),
         _sys_make_gauge_family(_sys_init_gauge_familys)
 
 #define _sys_init_histogram_familys(param, name, help, label, ...)   \
     param(prometheus::BuildHistogram() \
     .Name(name) \
     .Help(help) \
+    .LabelNamesVec({label, __VA_ARGS__}) \
     .Register(*registry_) \
-    .LabelNames(label, __VA_ARGS__)),
+    ),
         _sys_make_histogram_family(_sys_init_histogram_familys)
 
         dummy_() {

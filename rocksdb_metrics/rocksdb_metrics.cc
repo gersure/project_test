@@ -3,6 +3,8 @@
 //
 
 #include "rocksdb_metrics.hh"
+#include "prometheus/counter.h"
+#include "prometheus/histogram.h"
 
 
 void StatisticsEventListener::OnFlushCompleted(rocksdb::DB *db, const rocksdb::FlushJobInfo &info) {
@@ -121,24 +123,28 @@ RocksdbStatistics::RocksdbStatistics()
     param(prometheus::BuildCounter() \
     .Name(name) \
     .Help(help) \
+    .LabelNamesVec({label, __VA_ARGS__}) \
     .Register(*registry_) \
-    .LabelNames({label, __VA_ARGS__})),
+    ),
         _make_counter_family(_init_counter_familys)
 
 #define _init_gauge_familys(param, name, help, label, ...)   \
     param(prometheus::BuildGauge() \
     .Name(name) \
     .Help(help) \
+    .LabelNamesVec({label, __VA_ARGS__}) \
     .Register(*registry_) \
-    .LabelNames({label, __VA_ARGS__})),
+    ),
         _make_gauge_family(_init_gauge_familys)
 
-#define _init_histogram_familys(param, name, help, label, ...)   \
+#define _init_histogram_familys(param, name, help, buckets, label, ...)   \
     param(prometheus::BuildHistogram() \
     .Name(name) \
     .Help(help) \
+    .LabelNamesVec(label, __VA_ARGS__) \
+    .BucketBoundaries(buckets) \
     .Register(*registry_) \
-    .LabelNames(label, __VA_ARGS__)),
+    ),
         _make_histogram_family(_init_histogram_familys)
         dummy_() {
     for (

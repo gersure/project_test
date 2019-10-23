@@ -115,7 +115,7 @@ public:
 
 
 #define _make_histogram_family(val) \
-    val(STORE_ENGINE_COMPACTION_DURATIONS_VEC,  "engine_compaction_duration_seconds",   "Histogram of compaction duration seconds", {"db", "cf"}, prometheus::Histogram::ExponentialBuckets(0.005, 2.0, 20))
+    val(STORE_ENGINE_COMPACTION_DURATIONS_VEC,  "engine_compaction_duration_seconds",   "Histogram of compaction duration seconds", prometheus::Histogram::ExponentialBuckets(0.005, 2.0, 20), {"db", "cf"})
 
 private:
     friend StatisticsEventListener;
