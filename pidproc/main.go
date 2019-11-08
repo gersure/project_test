@@ -1,10 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/prometheus/procfs"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -61,9 +66,9 @@ type (
 	// Filedesc describes a proc's file descriptor usage and soft limit.
 	Filedesc struct {
 		// Open is the count of open file descriptors, -1 if unknown.
-		Open int64
+		Open uint
 		// Limit is the fd soft limit for the process.
-		Limit uint64
+		Limit uint
 	}
 
 	CpuInfo struct {
@@ -71,6 +76,10 @@ type (
 		ProcessorInfo []procfs.CPUInfo
 	}
 )
+
+func procFilePath(name string) string {
+	return filepath.Join(procfsPath, name)
+}
 
 func GetCpuInfo() (CpuInfo, error) {
 	fs, err := procfs.NewFS(procfsPath)
@@ -81,7 +90,6 @@ func GetCpuInfo() (CpuInfo, error) {
 	if err != nil {
 		return CpuInfo{}, errors.New("GetCpuInfo fs.CPUInfo err:" + err.Error())
 	}
-	fs.Stat()
 
 	return CpuInfo{
 		Processors:    len(cpuinfo),
@@ -89,6 +97,33 @@ func GetCpuInfo() (CpuInfo, error) {
 	}, nil
 
 }
+
+
+func ParseFileFDStats(filename string) (Filedesc, error) {
+	file, err := os.Open(procFilePath(filename))
+	if err != nil {
+		return Filedesc{}, err
+	}
+	defer file.Close()
+
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		return Filedesc{}, err
+	}
+	parts := bytes.Split(bytes.TrimSpace(content), []byte("\u0009"))
+	if len(parts) < 3 {
+		return Filedesc{}, fmt.Errorf("unexpected number of file stats in %q", filename)
+	}
+
+	// The file-nr proc is only 1 line with 3 values.
+	allocated, _ := strconv.Atoi(string(parts[0]))
+
+	// The second value is skipped as it will always be zero in linux 2.6.
+	maximum, _ := strconv.Atoi(string(parts[2]))
+
+	return Filedesc{uint(allocated), uint(maximum)}, nil
+}
+
 
 func ProcMetrics(proc procfs.Proc) (*ThreadProc, error) {
 	var res_err error = nil
@@ -183,8 +218,8 @@ func ProcMetrics(proc procfs.Proc) (*ThreadProc, error) {
 	}
 
 	filedesc := Filedesc{
-		Open:  int64(numfds),
-		Limit: uint64(limit.OpenFiles),
+		Open:  uint(numfds),
+		Limit: uint(limit.OpenFiles),
 	}
 
 	memory := Memory{
@@ -312,7 +347,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("get cpuinfo err:%s", err.Error())
 	}else{
-		log.Println("%v", cpuinfo)
+		log.Println("cpu : %d", cpuinfo.Processors)
 	}
 	for {
 		threads, err := GetThreadsProc(3397)
